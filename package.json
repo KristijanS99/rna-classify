@@ -22,9 +22,12 @@
   },
   "homepage": "https://github.com/KristijanS99/rna-classify#readme",
   "dependencies": {
+    "body-parser": "^1.19.0",
     "brain.js": "^2.0.0-beta.2",
     "dotenv": "^8.2.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "faunadb": "^4.0.0",
+    "joi": "^17.3.0"
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.0",

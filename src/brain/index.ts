@@ -8,35 +8,21 @@ let trainedBrain : any = null;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const startTraining = async ():Promise<boolean> => {
   net.train([
-    {input: 'Feeling good.', output: 'positive'},
-    {input: 'Overall well.', output: 'positive'},
-    {input: 'Extremely happy.', output: 'positive'},
-    {input: 'I\'m feeling joyful.', output: 'positive'},
-    {input: 'She is in an outstanding mood.', output: 'positive'},
-    {input: 'He is feeling inspiration', output: 'positive'},
-    {input: 'Today will be my day.', output: 'positive'},
-    {input: 'I know that I’m winner.', output: 'positive'},
-    {input: 'Yes ,I can do it, I know I can.', output: 'positive'},
-    {input: 'Tomorrow is next chance.', output: 'positive'},
-    {input: 'Henna can do it.', output: 'positive'},
-    {input: 'I like vegetables.', output: 'positive'},
-    {input: 'I\'m feeling worse than ever.', output: 'negative'},
-    {input: 'She seems a little distracted.', output: 'negative'},
-    {input: 'This behaviour is unacceptable.', output: 'negative'},
-    {input: 'Rober is feeling depressed.', output: 'negative'},
-    {input: 'They are feeling miserable.', output: 'negative'},
-    {input: 'Robert is in bad mood.', output: 'negative'},
-    {input: 'I\'m feeling pity for m action.', output: 'negative'},
+    {input: 'my unit-tests failed.', output: 'software'},
+    {input: 'tried the program, but it was buggy.', output: 'software'},
+    {input: 'i need a new power supply.', output: 'hardware'},
+    {input: 'the drive has a 2TB capacity.', output: 'hardware'},
+    // added for less overfitting
+    {input: 'unit-tests', output: 'software'},
+    {input: 'program', output: 'software'},
+    {input: 'power supply', output: 'hardware'},
+    {input: 'drive', output: 'hardware'},
   ], {
     // Defaults values --> expected validation
     iterations: 20000, // the maximum times to iterate the training data
-    errorThresh: 0.005, // the acceptable error percentage from training data
+    errorThresh: 0.05, // the acceptable error percentage from training data
     log: true, // true to use console.log
     logPeriod: 10, // iterations between logging out --> number greater than 0
-    learningRate: 0.3, // scales with delta to effect training rate
-    momentum: 0.1, // scales with next layer's change value
-    callbackPeriod: 10, // the number of iterations between callback calls
-    timeout: Infinity, // the max number of milliseconds to train for
   });
   const json = net.toJSON();
   const data = JSON.stringify(json);

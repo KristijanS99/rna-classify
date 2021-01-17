@@ -4,5 +4,6 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default {
-  PORT: process.env.PORT,
+  PORT: process.env.PORT || 8080,
+  DB_SECRET: process.env.DB_SECRET || '',
 };
