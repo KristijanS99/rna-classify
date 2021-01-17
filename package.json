@@ -22,9 +22,13 @@
   },
   "homepage": "https://github.com/KristijanS99/rna-classify#readme",
   "dependencies": {
-    "brain.js": "^2.0.0-beta.2"
+    "brain.js": "^2.0.0-beta.2",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1"
   },
   "devDependencies": {
+    "@types/dotenv": "^8.2.0",
+    "@types/express": "^4.17.11",
     "@types/node": "^14.14.21",
     "@typescript-eslint/eslint-plugin": "^4.13.0",
     "@typescript-eslint/parser": "^4.13.0",
