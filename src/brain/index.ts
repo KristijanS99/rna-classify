@@ -80,7 +80,7 @@ export const classify = (input:string):string => {
 };
 
 export const netExists = ():boolean => {
-  // Check if network has been trainer previously
+  // Check if network has been trained previously
   if (!existsSync('trainingdata.json')) {
     return false;
   }
