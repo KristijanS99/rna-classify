@@ -15,7 +15,7 @@ npm install
 npm run dev
 ```
 
-Your app should now be running on [localhost:5000](http://localhost:5000/).
+Your app should now be running on [localhost:8080](http://localhost:8080/) unless changes have been made to the PORT variable.
 
 ## Building
 
