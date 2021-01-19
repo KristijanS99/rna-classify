@@ -69,6 +69,9 @@ export const loadBrain = (): void => {
 };
 
 export const classify = (input:string):string => {
+  if (!netExists()) {
+    return 'NaN';
+  };
   if (!net) {
     loadBrain();
   }
