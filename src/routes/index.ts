@@ -1,5 +1,5 @@
 import express from 'express';
-// import {startTraining} from '../brain';
+import {startTraining, classify} from '../brain';
 import client, {q} from '../faunadb';
 import schema from '../validators';
 
@@ -33,9 +33,34 @@ router.post('/data', async (req, res) => {
   }
 });
 
-// router.get('/train', async (req, res) => {
-//   await startTraining();
-//   res.send('Training started');
-// });
+router.get('/train', async (req, res) => {
+  const hasFinished = await startTraining();
+  if (hasFinished) {
+    res.send('Training finished');
+  } else {
+    res.status(500).send('An error occurred');
+  }
+});
+
+router.post('/classify', async (req, res) => {
+  try {
+    const {sequence} = req.body;
+    // Validate RNA sequence
+    const {error} = schema.validate({
+      sequence,
+      type: '1',
+    });
+    if (error) {
+      console.error(error);
+      return res.status(400).send(error);
+    }
+    // Run prediction
+    const result = classify(sequence);
+    res.send(result);
+  } catch (e) {
+    console.error(e);
+    res.status(400).send(e);
+  }
+});
 
 export default router;

@@ -1,45 +1,75 @@
 import * as brain from 'brain.js';
 import {writeFileSync, readFileSync, existsSync} from 'fs';
-
-const net = new brain.recurrent.LSTM();
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let trainedBrain : any = null;
+import client, {q} from '../faunadb';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const startTraining = async ():Promise<boolean> => {
-  net.train([
-    {input: 'my unit-tests failed.', output: 'software'},
-    {input: 'tried the program, but it was buggy.', output: 'software'},
-    {input: 'i need a new power supply.', output: 'hardware'},
-    {input: 'the drive has a 2TB capacity.', output: 'hardware'},
-    // added for less overfitting
-    {input: 'unit-tests', output: 'software'},
-    {input: 'program', output: 'software'},
-    {input: 'power supply', output: 'hardware'},
-    {input: 'drive', output: 'hardware'},
-  ], {
+let net : any = null;
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const startTraining = async (): Promise<boolean> => {
+  // Get all sequences from DB
+  try {
+    const sequences:Result = await client.query(
+        q.Map(
+            q.Paginate(q.Documents(q.Collection('RNA'))),
+            q.Lambda((x) => q.Get(x)),
+        ),
+    );
+
+    const harmfulSeq: Array<any> = sequences.data.reduce(function(acc, curr) {
+      if (curr.data.type === '1') {
+        acc.push({
+          input: curr.data.sequence,
+          output: 'harmful',
+        });
+      };
+      return acc;
+    }, []);
+
+    const notHarmfulSeq:Array<any> = sequences.data.reduce(function(acc, curr) {
+      if (curr.data.type === '0') {
+        acc.push({
+          input: curr.data.sequence,
+          output: 'unharmful',
+        });
+      };
+      return acc;
+    }, []);
+
+    loadBrain();
+
+    net.train([...harmfulSeq, ...notHarmfulSeq], {
     // Defaults values --> expected validation
-    iterations: 20000, // the maximum times to iterate the training data
-    errorThresh: 0.05, // the acceptable error percentage from training data
-    log: true, // true to use console.log
-    logPeriod: 10, // iterations between logging out --> number greater than 0
-  });
-  const json = net.toJSON();
-  const data = JSON.stringify(json);
-  writeFileSync('trainingdata.json', data);
-  return true;
+      iterations: 500, // the maximum times to iterate the training data
+      errorThresh: 0.035, // the acceptable error percentage from training data
+      log: true, // true to use console.log
+      logPeriod: 1, // iterations between logging out --> number greater than 0
+    });
+
+    const json = net.toJSON();
+    const data = JSON.stringify(json);
+    writeFileSync('trainingdata.json', data);
+    return true;
+  } catch (e) {
+    console.error(e);
+    return false;
+  }
 };
 
-export const loadBrain = ():void => {
-  const savedNet = readFileSync('trainingdata.json');
-  const data = JSON.parse(savedNet.toString());
-  const net = new brain.recurrent.LSTM();
-  net.fromJSON(data);
-  trainedBrain = net;
+export const loadBrain = (): void => {
+  if (netExists()) {
+    const savedNet = readFileSync('trainingdata.json');
+    const data = JSON.parse(savedNet.toString());
+    const newNet = new brain.recurrent.LSTM();
+    newNet.fromJSON(data);
+    net = newNet;
+  } else {
+    net = new brain.recurrent.LSTM();
+  }
 };
 
 export const classify = (input:string):string => {
-  if (!trainedBrain) {
+  if (!net) {
     loadBrain();
   }
   const result:string = net.run(input);
@@ -53,3 +83,8 @@ export const netExists = ():boolean => {
   }
   return true;
 };
+
+interface Result {
+    data: Array<any>,
+}
+
