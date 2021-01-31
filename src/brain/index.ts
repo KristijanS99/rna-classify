@@ -3,10 +3,18 @@ import {writeFileSync, readFileSync, existsSync} from 'fs';
 import client, {q} from '../faunadb';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-let net : any = null;
+let net: any = null;
+let isTraining: boolean = false;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const startTraining = async (): Promise<boolean> => {
+export const startTraining = async (): Promise<object> => {
+  // Check if network training is in progress
+  if (isTraining) {
+    return {
+      status: 'error',
+      message: 'Network training in progress.',
+    };
+  };
   // Get all sequences from DB
   try {
     const sequences:Result = await client.query(
@@ -38,6 +46,7 @@ export const startTraining = async (): Promise<boolean> => {
 
     loadBrain();
 
+    isTraining = true;
     net.train([...harmfulSeq, ...notHarmfulSeq], {
     // Defaults values --> expected validation
       iterations: 500, // the maximum times to iterate the training data
@@ -49,10 +58,18 @@ export const startTraining = async (): Promise<boolean> => {
     const json = net.toJSON();
     const data = JSON.stringify(json);
     writeFileSync('trainingdata.json', data);
-    return true;
+    // eslint-disable-next-line no-unused-vars
+    isTraining = false;
+    return {
+      status: 'OK',
+      message: 'Network training complete.',
+    };
   } catch (e) {
     console.error(e);
-    return false;
+    return {
+      status: 'error',
+      message: e.message || 'An error occurred.',
+    };
   }
 };
 

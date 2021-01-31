@@ -1,31 +1,22 @@
 import express from 'express';
 import {startTraining, classify} from '../brain';
-import client, {q} from '../faunadb';
-import schema from '../validators';
+import Sequence from '../models/Sequence';
 
 const router = express.Router();
-const RNA_COLLECTION = 'RNA';
 
 // Adds RNA sequency to FaunaDB RNA collection
 router.post('/data', async (req, res) => {
   try {
-    const rna = {
-      ...req.body,
-    };
+    const {type, sequence} = req.body;
+    const rna = new Sequence(type, sequence);
     // Validate RNA sequence
-    const {error} = schema.validate(rna);
-    if (error) {
-      console.error(error);
-      return res.status(400).send(error);
+    const validate:any = rna.validate();
+    if (validate.invalid) {
+      console.error(validate.error);
+      return res.status(400).send(validate.error);
     }
     // Store the sequence in FaunaDb
-    const result = await client.query(
-        q.Create(
-            q.Collection(RNA_COLLECTION),
-            {
-              data: rna},
-        ),
-    );
+    const result = await rna.save();
     res.send(result);
   } catch (e) {
     console.error(e);
@@ -34,28 +25,26 @@ router.post('/data', async (req, res) => {
 });
 
 router.get('/train', async (req, res) => {
-  const hasFinished = await startTraining();
-  if (hasFinished) {
-    res.send('Training finished');
+  const result:any = await startTraining();
+  if (result.status === 'OK') {
+    res.send(result);
   } else {
-    res.status(500).send('An error occurred');
+    res.status(500).send(result);
   }
 });
 
 router.post('/classify', async (req, res) => {
   try {
-    const {sequence} = req.body;
+    const {type, sequence} = req.body;
+    const rna = new Sequence(type, sequence);
     // Validate RNA sequence
-    const {error} = schema.validate({
-      sequence,
-      type: '1',
-    });
-    if (error) {
-      console.error(error);
-      return res.status(400).send(error);
+    const validate:any = rna.validate();
+    if (validate.invalid) {
+      console.error(validate.error);
+      return res.status(400).send(validate.error);
     }
     // Run prediction
-    const result = classify(sequence);
+    const result = classify(rna.sequence);
     res.send(result);
   } catch (e) {
     console.error(e);
