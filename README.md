@@ -1,5 +1,9 @@
 # rna-classify
-Classify RNA structure
+Classify RNA structures into 'harmful' and 'unharmful' sequences based on LTSM network of sequences from <https://rnacentral.org/search?q=rna>.
+
+Harmful are sequences found in <https://www.malacards.org/> provider from RNACentral as such those sequences are associated with a disease.
+ 
+Unharmful are sequences that are not present on MalaCards and are not known to be associated with a disease yet.
 
 ## Running Locally
 
