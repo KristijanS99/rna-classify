@@ -7,7 +7,7 @@ const typePattern = /^[01]$/;
 
 const schema = Joi.object({
   sequence: Joi.string().regex(pattern).required(),
-  type: Joi.string().regex(typePattern).required(),
+  type: Joi.string().regex(typePattern),
 });
 
 export default schema;

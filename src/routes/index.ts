@@ -10,7 +10,7 @@ router.post('/data', async (req, res) => {
     const {type, sequence} = req.body;
     const rna = new Sequence(type, sequence);
     // Validate RNA sequence
-    const validate:any = rna.validate();
+    const validate: any = rna.validate();
     if (validate.invalid) {
       console.error(validate.error);
       return res.status(400).send(validate.error);
@@ -25,7 +25,7 @@ router.post('/data', async (req, res) => {
 });
 
 router.get('/train', async (req, res) => {
-  const result:any = await startTraining();
+  const result: any = await startTraining();
   if (result.status === 'OK') {
     res.send(result);
   } else {
@@ -35,10 +35,10 @@ router.get('/train', async (req, res) => {
 
 router.post('/classify', async (req, res) => {
   try {
-    const {type, sequence} = req.body;
-    const rna = new Sequence(type, sequence);
+    const {sequence} = req.body;
+    const rna = new Sequence(sequence);
     // Validate RNA sequence
-    const validate:any = rna.validate();
+    const validate: any = rna.validate();
     if (validate.invalid) {
       console.error(validate.error);
       return res.status(400).send(validate.error);
